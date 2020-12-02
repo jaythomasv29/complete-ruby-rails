@@ -1,31 +1,33 @@
-require "bundler/inline"
-
-gemfile true do
-  source "http://rubygems.org"
-  gem "bcrypt"
-end
-
+# require "bundler/inline"
 require "bcrypt"
 
-users = [
-          { username: "mashrur", password: "password1" },
-          { username: "jack", password: "password2" },
-          { username: "arya", password: "password3" },
-          { username: "jonshow", password: "password4" },
-          { username: "heisenberg", password: "password5" },
-        ]
+module Crud
+  p "crud module loaded successfully"
 
-def create_hash_digest(password)
-  BCrypt::Password.create(password)
-end
-
-def verify_hash_digest(password)
-  BCrypt::Password.new(password)
-end
-
-def create_secure_users(list_of_users)
-  list_of_users.each do |user_record|
-    user_record[:password] = create_hash_digest(user_record[:password])
+  def self.create_hash_digest(password)
+    BCrypt::Password.create(password) # takes in a password as a parameter and salts the password to make it more secure
   end
-  list_of_users
+
+  def self.verify_hash_digest(password)
+    BCrypt::Password.new(password) # takes in a password and uses bcrpyt to verify the password to authenticate
+  end
+
+  def self.create_secure_users(list_of_users)
+    list_of_users.each do |user_record| # enumerates through the array of hashes to modify each password key/value pair
+      user_record[:password] = create_hash_digest(user_record[:password])
+    end
+    list_of_users
+  end
+
+  def self.authenticate_user(username, password, list_of_users)
+    list_of_users.each do |user|
+      if user[:username] == username && verify_hash_digest(user[:password]) == password
+        puts "Login successful"
+        puts user
+        return true
+      end
+    end
+    puts "Credentials were not correct"
+    return false
+  end
 end
